@@ -19,7 +19,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "h4num4nth4-terraform-state"
+  bucket = var.bucket_name
 
 }
 
