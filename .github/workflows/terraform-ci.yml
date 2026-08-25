@@ -12,7 +12,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: terraform/data-sources-hands-on
+        working-directory: terraform/count-hands-on
 
     steps:
       - name: Checkout repository
