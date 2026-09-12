@@ -36,6 +36,39 @@ jobs:
             console.log('OIDC issuer:', payload.iss);
             console.log('OIDC audience:', payload.aud);
             console.log('OIDC subject:', payload.sub);
+      
+            - name: Test AWS OIDC directly
+        uses: actions/github-script@v7
+        env:
+          ROLE_ARN: arn:aws:iam::612524169043:role/GitHubActions-Terraform-Count
+        with:
+          script: |
+            const { execSync } = require('child_process');
+
+            const token = await core.getIDToken('sts.amazonaws.com');
+
+            core.setSecret(token);
+
+            const fs = require('fs');
+            fs.writeFileSync('/tmp/github-oidc-token', token);
+
+            try {
+              const output = execSync(
+                `aws sts assume-role-with-web-identity \
+                  --role-arn "${process.env.ROLE_ARN}" \
+                  --role-session-name "github-oidc-debug" \
+                  --web-identity-token file:///tmp/github-oidc-token`,
+                { encoding: 'utf8' }
+              );
+
+              console.log(output);
+            } catch (error) {
+              console.log(error.stdout?.toString() || '');
+              console.log(error.stderr?.toString() || '');
+              throw error;
+            } finally {
+              fs.rmSync('/tmp/github-oidc-token', { force: true });
+            }
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
