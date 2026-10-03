@@ -2,9 +2,6 @@ name: Terraform CI
 
 on:
   pull_request:
-  push:
-    branches:
-      - main
   
 permissions:
   id-token: write
@@ -90,3 +87,6 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan
+
+      - name: CI Complete
+        run: echo "Terraform CI completed successfully"
