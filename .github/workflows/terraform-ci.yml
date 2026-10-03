@@ -87,3 +87,6 @@ jobs:
 
       - name: Terraform Plan
         run: terraform plan
+
+      - name: CI Complete
+        run: echo "Terraform CI completed successfully"
