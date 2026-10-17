@@ -1,0 +1,56 @@
+name: Production Infra CI
+
+on:
+  pull_request:
+    paths:
+      - 'terraform/production-infra/**'
+      - '.github/workflows/production-infra-ci.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'terraform/production-infra/**'
+      - '.github/workflows/production-infra-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-infra-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Terraform validation and security
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.8
+
+      - name: Check Terraform formatting
+        working-directory: terraform/production-infra
+        run: terraform fmt -check -recursive
+
+      - name: Initialize Terraform without AWS backend access
+        working-directory: terraform/production-infra/environments/dev
+        run: terraform init -backend=false -input=false
+
+      - name: Validate Terraform configuration
+        working-directory: terraform/production-infra/environments/dev
+        run: terraform validate
+
+      - name: Scan Terraform configuration
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: config
+          scan-ref: terraform/production-infra
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'

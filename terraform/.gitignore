@@ -1,14 +1,19 @@
-# Terraform state files - never commit these
+# Terraform state files
 *.tfstate
+*.tfstate.*
 *.tfstate.backup
 *.tfstate.lock.info
 
-# Terraform working directory
-.terraform/
-.terraform.lock.hcl
+# Terraform working directories
+**/.terraform/*
 
-# Variable files with secrets
+# Terraform plans
+*.tfplan
+*.plan
+
+# Variable files that may contain secrets
 *.tfvars
+*.tfvars.json
 !example.tfvars
 
 # Crash logs
@@ -20,3 +25,16 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+
+# Lock files for older learning exercises
+count-hands-on/.terraform.lock.hcl
+data-sources-hands-on/.terraform.lock.hcl
+dependencies-hands-on/.terraform.lock.hcl
+dynamic-hands-on/.terraform.lock.hcl
+expressions-hands-on/.terraform.lock.hcl
+expressions-integrated-hands-on/.terraform.lock.hcl
+for-each-map-hands-on/.terraform.lock.hcl
+for-expressions-hands-on/.terraform.lock.hcl
+map-object-hands-on/.terraform.lock.hcl
+s3-backend/.terraform.lock.hcl
+vpc/.terraform.lock.hcl
