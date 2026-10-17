@@ -52,16 +52,6 @@ module "security" {
   name   = "prod-infra-dev"
   vpc_id = module.networking.vpc_id
 
-  egress_rules = [
-    {
-      description = "Outbound HTTPS"
-      from_port   = 443
-      to_port     = 443
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  ]
-
   tags = {
     Component = "security"
   }
