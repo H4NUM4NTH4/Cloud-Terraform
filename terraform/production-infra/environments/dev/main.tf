@@ -24,8 +24,9 @@ provider "aws" {
 module "networking" {
   source = "../../modules/networking"
 
-  name     = "prod-infra-dev"
-  vpc_cidr = "10.20.0.0/16"
+  name                    = "prod-infra-dev"
+  vpc_cidr                = "10.20.0.0/16"
+  map_public_ip_on_launch = false
 
   public_subnets = {
     public_a = {
@@ -50,6 +51,16 @@ module "security" {
 
   name   = "prod-infra-dev"
   vpc_id = module.networking.vpc_id
+
+  egress_rules = [
+    {
+      description = "Outbound HTTPS"
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  ]
 
   tags = {
     Component = "security"

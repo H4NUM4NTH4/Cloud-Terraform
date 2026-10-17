@@ -13,3 +13,15 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "egress_rules" {
+  description = "Explicit outbound rules required by application workloads."
+  type = list(object({
+    description = string
+    from_port   = number
+    to_port     = number
+    protocol    = string
+    cidr_blocks = list(string)
+  }))
+  default = []
+}

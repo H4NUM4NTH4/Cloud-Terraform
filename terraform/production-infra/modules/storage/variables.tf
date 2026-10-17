@@ -8,3 +8,10 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+
+variable "kms_key_arn" {
+  description = "Optional customer-managed KMS key ARN for S3 encryption."
+  type        = string
+  default     = null
+}

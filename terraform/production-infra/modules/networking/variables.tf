@@ -21,3 +21,10 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+
+variable "map_public_ip_on_launch" {
+  description = "Whether instances launched in public subnets automatically receive public IPv4 addresses."
+  type        = bool
+  default     = false
+}

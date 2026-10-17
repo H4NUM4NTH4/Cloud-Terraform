@@ -17,15 +17,33 @@ resource "aws_s3_bucket_versioning" "this" {
   }
 }
 
+
+resource "aws_kms_key" "this" {
+  description             = "KMS key for ${var.bucket_name} S3 encryption"
+  enable_key_rotation     = true
+  deletion_window_in_days = 7
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.bucket_name}-kms"
+    }
+  )
+}
+
 resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
   bucket = aws_s3_bucket.this.id
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = aws_kms_key.this.arn
     }
+
+    bucket_key_enabled = true
   }
 }
+
 
 resource "aws_s3_bucket_public_access_block" "this" {
   bucket = aws_s3_bucket.this.id
