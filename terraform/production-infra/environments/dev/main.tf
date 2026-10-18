@@ -21,6 +21,8 @@ provider "aws" {
   }
 }
 
+
+#to get the module outputs, we need to use the module block and pass the required variables to it. The module block will call the module and create the resources defined in it.
 module "networking" {
   source = "../../modules/networking"
 
