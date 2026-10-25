@@ -107,6 +107,7 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
+  
   apply:
     name: Apply Terraform plan (dev)
     runs-on: ubuntu-latest
@@ -132,12 +133,6 @@ jobs:
         with:
           terraform_version: 1.14.8
 
-      - name: Download reviewed Terraform plan
-        uses: actions/download-artifact@v4
-        with:
-          name: production-infra-dev-plan
-          path: terraform/production-infra/environments/dev
-
       - name: Configure AWS credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -147,5 +142,8 @@ jobs:
       - name: Initialize Terraform with S3 backend
         run: terraform init -input=false
 
-      - name: Apply reviewed Terraform plan
+      - name: Generate fresh Terraform plan
+        run: terraform plan -input=false -no-color -out=tfplan
+
+      - name: Apply Terraform plan
         run: terraform apply -input=false -no-color tfplan
