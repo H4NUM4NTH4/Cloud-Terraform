@@ -108,42 +108,42 @@ jobs:
           if-no-files-found: error
 
   
-  # apply:
-  #   name: Apply Terraform plan (dev)
-  #   runs-on: ubuntu-latest
-  #   needs: plan
-  #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  apply:
+    name: Apply Terraform plan (dev)
+    runs-on: ubuntu-latest
+    needs: plan
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-  #   environment: production
+    environment: production
 
-  #   permissions:
-  #     contents: read
-  #     id-token: write
+    permissions:
+      contents: read
+      id-token: write
 
-  #   defaults:
-  #     run:
-  #       working-directory: terraform/production-infra/environments/dev
+    defaults:
+      run:
+        working-directory: terraform/production-infra/environments/dev
 
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  #     - name: Set up Terraform
-  #       uses: hashicorp/setup-terraform@v3
-  #       with:
-  #         terraform_version: 1.14.8
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.8
 
-  #     - name: Configure AWS credentials using OIDC
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         role-to-assume: arn:aws:iam::612524169043:role/GitHubActions-Terraform-Infra
-  #         aws-region: ap-south-1
+      - name: Configure AWS credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::612524169043:role/GitHubActions-Terraform-Infra
+          aws-region: ap-south-1
 
-  #     - name: Initialize Terraform with S3 backend
-  #       run: terraform init -input=false
+      - name: Initialize Terraform with S3 backend
+        run: terraform init -input=false
 
-  #     - name: Generate fresh Terraform plan
-  #       run: terraform plan -input=false -no-color -out=tfplan
+      - name: Generate fresh Terraform plan
+        run: terraform plan -input=false -no-color -out=tfplan
 
-  #     - name: Apply Terraform plan
-  #       run: terraform apply -input=false -no-color tfplan
+      - name: Apply Terraform plan
+        run: terraform apply -input=false -no-color tfplan
