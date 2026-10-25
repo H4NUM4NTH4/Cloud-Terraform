@@ -142,6 +142,11 @@ jobs:
       - name: Initialize Terraform with S3 backend
         run: terraform init -input=false
 
+      - name: Verify remote Terraform state
+        run: |
+          terraform state list
+          terraform state show module.storage.aws_s3_bucket.this
+
       - name: Generate fresh Terraform plan
         run: terraform plan -input=false -no-color -out=tfplan
 
