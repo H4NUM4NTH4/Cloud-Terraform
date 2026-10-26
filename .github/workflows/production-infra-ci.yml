@@ -142,10 +142,25 @@ jobs:
       - name: Initialize Terraform with S3 backend
         run: terraform init -input=false
 
-      - name: Verify remote Terraform state
+      
+      - name: Confirm backend and bucket state
+        shell: bash
         run: |
+          echo "=== Backend configuration ==="
+          cat backend.tf
+
+          echo "=== Terraform state resources ==="
           terraform state list
-          terraform state show module.storage.aws_s3_bucket.this
+
+          echo "=== Existing bucket in state ==="
+          terraform state show module.storage.aws_s3_bucket.this || true
+
+          echo "=== Backend state bucket resource ==="
+          terraform state pull | jq -r '
+            .resources[]
+            | select(.type == "aws_s3_bucket")
+            | .module // "root"
+          '
 
       - name: Generate fresh Terraform plan
         run: terraform plan -input=false -no-color -out=tfplan
