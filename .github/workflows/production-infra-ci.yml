@@ -142,26 +142,16 @@ jobs:
       - name: Initialize Terraform with S3 backend
         run: terraform init -input=false
 
-      
-      
-      - name: Confirm backend and bucket state
-        shell: bash
+      - name: Debug bucket access
         run: |
-          echo "=== Terraform workspace ==="
-          terraform workspace show
-
-          echo "=== Backend state resources ==="
-          terraform state list
-
-          echo "=== S3 bucket in Terraform state ==="
-          terraform state list | grep -F 'module.storage.aws_s3_bucket.this' \
-            || echo "S3 bucket is MISSING from Terraform state"
-
-          echo "=== Backend configuration ==="
-          cat backend.tf
-
+          aws sts get-caller-identity
+          aws s3api head-bucket --bucket h4num4nth4-production-infra-dev-2026 --region ap-south-1 && echo HEAD_OK
+          aws s3api get-bucket-versioning --bucket h4num4nth4-production-infra-dev-2026 --region ap-south-1 || echo VERSIONING_READ_FAILED
+          aws s3api get-bucket-encryption --bucket h4num4nth4-production-infra-dev-2026 --region ap-south-1 || echo ENCRYPTION_READ_FAILED
 
       - name: Generate fresh Terraform plan
+        env:
+          TF_LOG: WARN
         run: terraform plan -input=false -no-color -out=tfplan
 
       - name: Apply Terraform plan
