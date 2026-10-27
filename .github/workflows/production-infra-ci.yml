@@ -19,7 +19,7 @@ permissions:
 
 concurrency:
   group: production-infra-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   validate:
@@ -98,7 +98,7 @@ jobs:
       - name: Generate Terraform plan
         run: terraform plan -input=false -no-color -out=tfplan
 
-      - name: Upload reviewed Terraform plan
+      - name: Upload Terraform plan for apply
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
@@ -107,7 +107,6 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-  
   apply:
     name: Apply Terraform plan (dev)
     runs-on: ubuntu-latest
@@ -142,17 +141,11 @@ jobs:
       - name: Initialize Terraform with S3 backend
         run: terraform init -input=false
 
-      - name: Debug bucket access
-        run: |
-          aws sts get-caller-identity
-          aws s3api head-bucket --bucket h4num4nth4-production-infra-dev-2026 --region ap-south-1 && echo HEAD_OK
-          aws s3api get-bucket-versioning --bucket h4num4nth4-production-infra-dev-2026 --region ap-south-1 || echo VERSIONING_READ_FAILED
-          aws s3api get-bucket-encryption --bucket h4num4nth4-production-infra-dev-2026 --region ap-south-1 || echo ENCRYPTION_READ_FAILED
+      - name: Download Terraform plan from this workflow run
+        uses: actions/download-artifact@v4
+        with:
+          name: production-infra-dev-plan
+          path: terraform/production-infra/environments/dev
 
-      - name: Generate fresh Terraform plan
-        env:
-          TF_LOG: WARN
-        run: terraform plan -input=false -no-color -out=tfplan
-
-      - name: Apply Terraform plan
+      - name: Apply reviewed Terraform plan
         run: terraform apply -input=false -no-color tfplan
